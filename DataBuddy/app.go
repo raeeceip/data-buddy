@@ -1,13 +1,32 @@
 package main
 
 import (
+	"DataBuddy/backend/api"
 	"context"
 	"fmt"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx            context.Context
+	indexService   *api.IndexService
+	arrangeService *api.ArrangeService
+}
+
+func (a *App) IndexFile(filePath string) error {
+	return a.indexService.IndexFile(filePath)
+}
+
+func (a *App) ArrangeDocuments(docs []api.Document, opts api.ArrangeOptions) (*api.ArrangeResult, error) {
+	return a.arrangeService.Arrange(docs, opts)
+}
+
+func (a *App) GetUniqueValues(docs []api.Document, field string) ([]interface{}, error) {
+	return a.arrangeService.GetUniqueValues(docs, field)
+}
+
+func (a *App) AggregateField(docs []api.Document, field string, aggregationType string) (float64, error) {
+	return a.arrangeService.Aggregate(docs, field, aggregationType)
 }
 
 // NewApp creates a new App application struct
