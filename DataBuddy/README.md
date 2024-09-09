@@ -1,12 +1,12 @@
 # DataBuddy
 
-DataBuddy is a desktop application for indexing and arranging data, built with Wails, Next.js, and Go.
+DataBuddy is a desktop application for indexing and arranging data, built with Wails, React, and Go.
 
 ## Design Overview
 
 DataBuddy consists of two main components:
 
-1. Frontend: A Next.js application with shadcn/ui for the user interface.
+1. Frontend: A React application with Chakra UI for the user interface.
 2. Backend: A Go application handling data processing and storage.
 
 ### Features
@@ -19,11 +19,14 @@ DataBuddy consists of two main components:
 
 ```
 DataBuddy/
-├── frontend/           # Next.js frontend
+├── frontend/           # React frontend
 │   ├── src/
-│   │   ├── app/        # Next.js app router
 │   │   ├── components/ # React components
-│   │   └── lib/        # Utility functions and services
+│   │   │   ├── DataUpload.tsx
+│   │   │   └── DataView.tsx
+│   │   └── services/   # Frontend services
+│   │       ├── indexingService.ts
+│   │       └── arrangingService.ts
 ├── backend/            # Go backend
 │   ├── main.go         # Main application entry
 │   └── api/
@@ -33,7 +36,7 @@ DataBuddy/
 └── go.mod              # Go module file
 ```
 
-### Frontend (Next.js with shadcn/ui)
+### Frontend (React with Chakra UI)
 
 The frontend is responsible for:
 - Providing a user-friendly interface for data upload and viewing.
@@ -49,13 +52,12 @@ The backend handles:
 
 ## Getting Started
 
-1. Install Wails: https://wails.io/docs/gettingstarted/installation
-2. Clone this repository
-3. Run `wails dev` in the project root to start the development server
+1. Ensure you have Go and npm installed.
+2. Run `wails dev` in the project root to start the development server.
 
 ## Development
 
-- Frontend development: Work in the `frontend` directory using Next.js conventions.
+- Frontend development: Work in the `frontend` directory using React conventions.
 - Backend development: Implement Go logic in the `backend` directory.
 - Use Wails bindings to connect frontend and backend.
 
