@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { MainNav } from "../components/dashboard/main-nav";
 import { ThemeToggle } from "../components/ThemeToggle";
-import TeamSwitcher from "../components/dashboard/team-switcher";
 import { UserNav } from "../components/dashboard/user-nav";
 import { Search } from "../components/dashboard/search";
 import { siteConfig } from "../config/site";

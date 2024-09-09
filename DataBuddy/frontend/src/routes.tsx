@@ -15,7 +15,6 @@ import SettingsProfilePage from "./components/forms/profile/page";
 import SettingsDisplayPage from "./components/forms/display/page";
 import SettingsNotificationsPage from "./components/forms/notifications/page";
 import ErrorPage from "./pages/ErrorPage";
-import MusicPage from "./pages/MusicPage";
 
 const routes = [
   {
@@ -28,11 +27,6 @@ const routes = [
         path: "/Cards",
         element: <CardsPage />,
       },
-      {
-        path: "/Music",
-        element: <MusicPage />,
-      },
-
       {
         path: "/Login",
         element: <AuthenticationPage />,

@@ -9,25 +9,10 @@ export const siteConfig = {
       title: "Home",
       href: "/",
     },
+
     {
-      title: "Cards",
-      href: "/Cards",
-    },
-    {
-      title: "Music",
-      href: "/Music",
-    },
-    {
-      title: "404",
-      href: "/404",
-    },
-    {
-      title: "Profile",
+      title: "Settings",
       href: "/Profile",
-    },
-    {
-      title: "Login",
-      href: "/Login",
     },
     {
       title: "PlayGround",
