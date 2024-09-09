@@ -11,7 +11,7 @@ DataBuddy consists of two main components:
 
 ### Features
 
-- Data Indexing (Maestro): Upload and index data from CSV files or other data types.
+- Data Indexing based on Maestro: Upload and index data from CSV files or other data types.
 - Data Arranging: Organize and view indexed data.
 - SQLite Database: Store processed data locally.
 
