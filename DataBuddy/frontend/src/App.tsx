@@ -1,28 +1,21 @@
-import {useState} from 'react';
-import logo from './assets/images/logo-universal.png';
-import './App.css';
-import {Greet} from "../wailsjs/go/main/App";
+import React, { useState } from 'react';
+import DataUpload from './components/DataUpload';
+import SearchComponent from './components/SearchComponent';
+import DataView from './components/DataView';
 
-function App() {
-    const [resultText, setResultText] = useState("Please enter your name below 👇");
-    const [name, setName] = useState('');
-    const updateName = (e: any) => setName(e.target.value);
-    const updateResultText = (result: string) => setResultText(result);
+export default function App() {
+  const [documents, setDocuments] = useState([]);
 
-    function greet() {
-        Greet(name).then(updateResultText);
-    }
+  const handleSearchResults = (results) => {
+    setDocuments(results);
+  };
 
-    return (
-        <div id="App">
-            <img src={logo} id="logo" alt="logo"/>
-            <div id="result" className="result">{resultText}</div>
-            <div id="input" className="input-box">
-                <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
-                <button className="btn" onClick={greet}>Greet</button>
-            </div>
-        </div>
-    )
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-8">DataBuddy</h1>
+      <DataUpload />
+      <SearchComponent onSearchResults={handleSearchResults} />
+      <DataView documents={documents} />
+    </div>
+  );
 }
-
-export default App
