@@ -62,12 +62,22 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Release Assets
+      - name: Upload Release Asset (Linux)
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./DataBuddy-${{ matrix.os }}/DataBuddy-*
-          asset_name: DataBuddy-${{ matrix.os }}
+          asset_path: ./DataBuddy-ubuntu-latest/DataBuddy-linux
+          asset_name: DataBuddy-linux
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (Windows)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./DataBuddy-windows-latest/DataBuddy-windows.exe
+          asset_name: DataBuddy-windows.exe
           asset_content_type: application/octet-stream
