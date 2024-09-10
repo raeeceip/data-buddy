@@ -1,3 +1,4 @@
+theme: jekyll-theme-architect
 # DataBuddy
 
 DataBuddy is a desktop application for indexing and arranging data, built with Wails, Next.js, and Go.
