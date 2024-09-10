@@ -3,7 +3,7 @@ export type SiteConfig = typeof siteConfig;
 export const siteConfig = {
   name: "TechGraft Consultancy",
   description:
-    "TechGraft Consultancy is a software development company that specializes in building web, desktop and mobile applications for businesses and individuals.",
+    "Try DataBudddy Yall",
   mainNav: [
     {
       title: "Home",
@@ -14,6 +14,11 @@ export const siteConfig = {
       title: "Settings",
       href: "/Profile",
     },
+    {
+      title: "Payment",
+      href: "/Cards"
+    },
+
     {
       title: "PlayGround",
       href: "/Playground",

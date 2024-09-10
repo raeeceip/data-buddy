@@ -1,4 +1,7 @@
+import React, { useState } from 'react';
+import Papa from 'papaparse';
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Card,
   CardContent,
@@ -12,46 +15,83 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import { CalendarDateRangePicker } from "../components/task/date-range-picker";
-import { MainNav } from "../components/dashboard/main-nav";
 import { Overview } from "../components/dashboard/overview";
 import { RecentSales } from "../components/dashboard/recent-sales";
-import { Search } from "../components/dashboard/search";
-import TeamSwitcher from "../components/dashboard/team-switcher";
-import { UserNav } from "../components/dashboard/user-nav";
-import { ThemeToggle } from "../components/ThemeToggle";
+
+interface DashboardData {
+  totalRevenue: string;
+  subscriptions: number;
+  sales: number;
+  activeNow: number;
+}
 
 export default function DashboardPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = event.target.files?.[0];
+    if (uploadedFile) {
+      setFile(uploadedFile);
+      parseCSV(uploadedFile);
+    }
+  };
+
+  const parseCSV = (file: File) => {
+    Papa.parse(file, {
+      complete: (result) => {
+        const data = result.data as string[][];
+        if (data.length > 1) {
+          // Assuming the CSV has headers and at least one row of data
+          const [, firstDataRow] = data;
+          setDashboardData({
+            totalRevenue: `$${firstDataRow[0] || '0'}`,
+            subscriptions: parseInt(firstDataRow[1] || '0', 10),
+            sales: parseInt(firstDataRow[2] || '0', 10),
+            activeNow: parseInt(firstDataRow[3] || '0', 10),
+          });
+        }
+      },
+      header: false,
+      skipEmptyLines: true,
+    });
+  };
+
   return (
-    <>
-      <div className="flex-1 space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <div className="flex items-center space-x-2">
-            <CalendarDateRangePicker />
-            <Button>Download</Button>
-          </div>
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <div className="flex items-center space-x-2">
+          <Input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="max-w-sm"
+          />
+          <Button onClick={() => document.getElementById('file-upload')?.click()}>
+            Upload CSV
+          </Button>
         </div>
+      </div>
+
+      {file && (
+        <p className="text-sm text-muted-foreground">
+          Uploaded file: {file.name}
+        </p>
+      )}
+
+      {dashboardData ? (
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics" disabled>
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="reports" disabled>
-              Reports
-            </TabsTrigger>
-            <TabsTrigger value="notifications" disabled>
-              Notifications
-            </TabsTrigger>
+            <TabsTrigger value="analytics" disabled>Analytics</TabsTrigger>
+            <TabsTrigger value="reports" disabled>Reports</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Revenue
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -66,17 +106,12 @@ export default function DashboardPage() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">$45,231.89</div>
-                  <p className="text-xs text-muted-foreground">
-                    +20.1% from last month
-                  </p>
+                  <div className="text-2xl font-bold">{dashboardData.totalRevenue}</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Subscriptions
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Subscriptions</CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -93,10 +128,7 @@ export default function DashboardPage() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+2350</div>
-                  <p className="text-xs text-muted-foreground">
-                    +180.1% from last month
-                  </p>
+                  <div className="text-2xl font-bold">+{dashboardData.subscriptions}</div>
                 </CardContent>
               </Card>
               <Card>
@@ -117,17 +149,12 @@ export default function DashboardPage() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+12,234</div>
-                  <p className="text-xs text-muted-foreground">
-                    +19% from last month
-                  </p>
+                  <div className="text-2xl font-bold">+{dashboardData.sales}</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Active Now
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Active Now</CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -142,10 +169,7 @@ export default function DashboardPage() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+573</div>
-                  <p className="text-xs text-muted-foreground">
-                    +201 since last hour
-                  </p>
+                  <div className="text-2xl font-bold">+{dashboardData.activeNow}</div>
                 </CardContent>
               </Card>
             </div>
@@ -162,7 +186,7 @@ export default function DashboardPage() {
                 <CardHeader>
                   <CardTitle>Recent Sales</CardTitle>
                   <CardDescription>
-                    You made 265 sales this month.
+                    You made {dashboardData.sales} sales this month.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -172,7 +196,11 @@ export default function DashboardPage() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
-    </>
+      ) : (
+        <div className="text-center py-10">
+          <p className="text-xl">Upload a CSV file to view the dashboard</p>
+        </div>
+      )}
+    </div>
   );
 }

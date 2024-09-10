@@ -4,6 +4,7 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { UserNav } from "../components/dashboard/user-nav";
 import { Search } from "../components/dashboard/search";
 import { siteConfig } from "../config/site";
+import React from 'react';
 
 const Layout = () => {
   return (
