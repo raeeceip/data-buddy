@@ -1,6 +1,6 @@
 title: Data-Buddy
 description: Data Visualization tool
-google_analytics:
 remote_theme: pages-themes/architect@v0.2.0
 plugins:
 - jekyll-remote-theme 
+theme: jekyll-theme-architect
