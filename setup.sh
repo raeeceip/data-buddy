@@ -1,106 +1,106 @@
-#!/bin/bash
+# Update Layout component
+cat > src/components/Layout.tsx << EOL
+import React, { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
-# DataBuddy Setup Script
+interface LayoutProps {
+  children: ReactNode;
+}
 
-# Install Wails
-go install github.com/wailsapp/wails/v2/cmd/wails@latest
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  return (
+    <div>
+      <nav>
+        <ul>
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/dashboard">Dashboard</Link></li>
+          <li><Link to="/visualization">Visualization</Link></li>
+        </ul>
+      </nav>
+      <main>{children}</main>
+    </div>
+  );
+};
 
-# Initialize Wails project with React and TypeScript
-wails init -n DataBuddy -t react-ts
+export default Layout;
+EOL
 
-# Navigate into the project directory
-cd DataBuddy
+# Update index.tsx with new React Router syntax
+cat > src/index.tsx << EOL
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import VisualizationPage from './pages/VisualizationPage';
 
-# Install additional frontend dependencies
-cd frontend
-npm install @chakra-ui/react @emotion/react @emotion/styled framer-motion
+const App: React.FC = () => {
+  return (
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/visualization" element={<VisualizationPage />} />
+        </Routes>
+      </Layout>
+    </Router>
+  );
+};
 
-# Create directories for our custom components and services
-mkdir -p src/components src/services
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+EOL
 
-# Create placeholder files for our main components
-touch src/components/DataUpload.tsx src/components/DataView.tsx
+# Update main.js to use import instead of require for electron-is-dev
+cat > main.js << EOL
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
 
-# Create placeholder files for our services
-touch src/services/indexingService.ts src/services/arrangingService.ts
+async function createWindow() {
+  const isDev = (await import('electron-is-dev')).default;
+  
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
 
-# Navigate back to the root directory
-cd ..
+  win.loadURL(
+    isDev
+      ? 'http://localhost:3000'
+      : \`file://\${path.join(__dirname, './build/index.html')}\`
+  );
 
-# Create directories for our backend API
-mkdir -p backend/api
+  if (isDev) {
+    win.webContents.openDevTools();
+  }
+}
 
-# Create placeholder files for our backend services
-touch backend/api/indexing.go backend/api/arranging.go
+app.whenReady().then(createWindow);
 
-# Update go.mod to include SQLite driver
-go get github.com/mattn/go-sqlite3
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
 
-# Create README.md
-cat << EOF > README.md
-# DataBuddy
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+EOL
 
-DataBuddy is a desktop application for indexing and arranging data, built with Wails, React, and Go.
+# Install missing dependency
+npm install --save-dev @babel/plugin-proposal-private-property-in-object
 
-## Design Overview
-
-DataBuddy consists of two main components:
-
-1. Frontend: A React application with Chakra UI for the user interface.
-2. Backend: A Go application handling data processing and storage.
-
-### Features
-
-- Data Indexing (Maestro): Upload and index data from CSV files or other data types.
-- Data Arranging: Organize and view indexed data.
-- SQLite Database: Store processed data locally.
-
-### Project Structure
-
-\`\`\`
-DataBuddy/
-├── frontend/           # React frontend
-│   ├── src/
-│   │   ├── components/ # React components
-│   │   │   ├── DataUpload.tsx
-│   │   │   └── DataView.tsx
-│   │   └── services/   # Frontend services
-│   │       ├── indexingService.ts
-│   │       └── arrangingService.ts
-├── backend/            # Go backend
-│   ├── main.go         # Main application entry
-│   └── api/
-│       ├── indexing.go # Data indexing logic
-│       └── arranging.go # Data arranging logic
-├── wails.json          # Wails configuration
-└── go.mod              # Go module file
-\`\`\`
-
-### Frontend (React with Chakra UI)
-
-The frontend is responsible for:
-- Providing a user-friendly interface for data upload and viewing.
-- Communicating with the backend for data processing and retrieval.
-
-### Backend (Go)
-
-The backend handles:
-- Data extraction from uploaded files.
-- Data processing and indexing.
-- Storing data in SQLite database.
-- Providing API endpoints for the frontend to interact with the data.
-
-## Getting Started
-
-1. Ensure you have Go and npm installed.
-2. Run \`wails dev\` in the project root to start the development server.
-
-## Development
-
-- Frontend development: Work in the \`frontend\` directory using React conventions.
-- Backend development: Implement Go logic in the \`backend\` directory.
-- Use Wails bindings to connect frontend and backend.
-
-EOF
-
-echo "DataBuddy project structure has been set up!"
+echo "Project files have been updated. Please run 'npm start' again."
