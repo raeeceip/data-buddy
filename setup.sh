@@ -1,106 +1,36 @@
-# Update Layout component
-cat > src/components/Layout.tsx << EOL
-import React, { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+#!/bin/bash
 
-interface LayoutProps {
-  children: ReactNode;
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_color() {
+    color=$1
+    message=$2
+    echo -e "${color}${message}${NC}"
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
-  return (
-    <div>
-      <nav>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><Link to="/visualization">Visualization</Link></li>
-        </ul>
-      </nav>
-      <main>{children}</main>
-    </div>
-  );
-};
+# Check if npm is installed
+if ! command -v npm &> /dev/null
+then
+    print_color $YELLOW "npm could not be found. Please install Node.js and npm first."
+    exit 1
+fi
 
-export default Layout;
-EOL
+# Install dependencies
+print_color $GREEN "Installing dependencies..."
+npm install @observablehq/plot @mui/material @emotion/react @emotion/styled @mui/icons-material
 
-# Update index.tsx with new React Router syntax
-cat > src/index.tsx << EOL
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-import Layout from './components/Layout';
-import HomePage from './pages/HomePage';
-import DashboardPage from './pages/DashboardPage';
-import VisualizationPage from './pages/VisualizationPage';
+# Update package.json scripts
+print_color $GREEN "Updating package.json scripts..."
+npm pkg set scripts.dev="electron-vite dev"
+npm pkg set scripts.build="electron-vite build"
+npm pkg set scripts.preview="electron-vite preview"
 
-const App: React.FC = () => {
-  return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/visualization" element={<VisualizationPage />} />
-        </Routes>
-      </Layout>
-    </Router>
-  );
-};
+# Start the development server
+print_color $GREEN "Starting the development server..."
+npm run dev
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-EOL
-
-# Update main.js to use import instead of require for electron-is-dev
-cat > main.js << EOL
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-
-async function createWindow() {
-  const isDev = (await import('electron-is-dev')).default;
-  
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
-
-  win.loadURL(
-    isDev
-      ? 'http://localhost:3000'
-      : \`file://\${path.join(__dirname, './build/index.html')}\`
-  );
-
-  if (isDev) {
-    win.webContents.openDevTools();
-  }
-}
-
-app.whenReady().then(createWindow);
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});
-EOL
-
-# Install missing dependency
-npm install --save-dev @babel/plugin-proposal-private-property-in-object
-
-echo "Project files have been updated. Please run 'npm start' again."
+print_color $GREEN "Setup complete! Your development server should now be running."
