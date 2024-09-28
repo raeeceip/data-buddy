@@ -1,27 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import * as Plot from '@observablehq/plot';
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Select, 
-  MenuItem, 
-  Button, 
-  TextField, 
-  Grid 
-} from '@mui/material';
+import { Box, Typography, Card, CardContent, Button, Select, MenuItem, Grid } from '@mui/material';
 
 const plotTypes = [
   { value: 'scatterplot', label: 'Scatterplot' },
   { value: 'lineChart', label: 'Line Chart' },
   { value: 'barChart', label: 'Bar Chart' },
   { value: 'histogram', label: 'Histogram' },
-  { value: 'boxPlot', label: 'Box Plot' },
-  { value: 'heatmap', label: 'Heatmap' },
-  { value: 'areaChart', label: 'Area Chart' },
-  { value: 'stackedBarChart', label: 'Stacked Bar Chart' },
-  { value: 'scatterplotMatrix', label: 'Scatterplot Matrix' },
-  { value: 'violinPlot', label: 'Violin Plot' },
 ];
 
 const VisualizationPage: React.FC = () => {
@@ -29,7 +14,8 @@ const VisualizationPage: React.FC = () => {
   const [selectedPlot, setSelectedPlot] = useState<string>('scatterplot');
   const [xAxis, setXAxis] = useState<string>('');
   const [yAxis, setYAxis] = useState<string>('');
-  const [colorBy, setColorBy] = useState<string>('');
+  const [availableColumns, setAvailableColumns] = useState<string[]>([]);
+  const plotRef = useRef<HTMLDivElement>(null);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -39,6 +25,9 @@ const VisualizationPage: React.FC = () => {
         const csv = e.target?.result as string;
         const parsedData = parseCSV(csv);
         setData(parsedData);
+        if (parsedData.length > 0) {
+          setAvailableColumns(Object.keys(parsedData[0]));
+        }
       };
       reader.readAsText(file);
     }
@@ -46,48 +35,79 @@ const VisualizationPage: React.FC = () => {
 
   const parseCSV = (csv: string) => {
     const lines = csv.split('\n');
-    const headers = lines[0].split(',');
+    const headers = lines[0].split(',').map(header => header.trim());
     return lines.slice(1).map(line => {
       const values = line.split(',');
       return headers.reduce((obj, header, index) => {
-        obj[header.trim()] = values[index];
+        obj[header] = values[index]?.trim();
         return obj;
       }, {} as any);
     });
   };
 
   const renderPlot = useCallback(() => {
-    if (data.length === 0 || !xAxis || !yAxis) return null;
+    if (data.length === 0 || !xAxis || (!yAxis && selectedPlot !== 'histogram')) return null;
 
     const plotOptions = {
       width: 800,
       height: 400,
       x: { label: xAxis },
-      y: { label: yAxis },
-      color: colorBy ? { legend: true } : undefined,
+      y: selectedPlot !== 'histogram' ? { label: yAxis } : undefined,
     };
 
-    // ... (keep the existing switch statement for different plot types)
+    let plot;
+    switch (selectedPlot) {
+      case 'scatterplot':
+        plot = Plot.plot({
+          ...plotOptions,
+          marks: [Plot.dot(data, { x: xAxis, y: yAxis })]
+        });
+        break;
+      case 'lineChart':
+        plot = Plot.plot({
+          ...plotOptions,
+          marks: [Plot.line(data, { x: xAxis, y: yAxis })]
+        });
+        break;
+      case 'barChart':
+        plot = Plot.plot({
+          ...plotOptions,
+          marks: [Plot.barY(data, { x: xAxis, y: yAxis })]
+        });
+        break;
+      case 'histogram':
+        plot = Plot.plot({
+          ...plotOptions,
+          marks: [Plot.rectY(data, Plot.binX({ y: "count" }, { x: xAxis }))]
+        });
+        break;
+      default:
+        return null;
+    }
 
-  }, [data, selectedPlot, xAxis, yAxis, colorBy]);
+    if (plotRef.current) {
+      plotRef.current.innerHTML = '';
+      plotRef.current.appendChild(plot);
+    }
+  }, [data, selectedPlot, xAxis, yAxis]);
+
+  useEffect(() => {
+    renderPlot();
+  }, [renderPlot]);
 
   return (
-    <div style={{ padding: '20px' }}>
+    <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>Data Visualization</Typography>
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>Data Preprocessing and Visualization</Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                type="file"
-                onChange={handleFileUpload}
-                fullWidth
-                variant="outlined"
-                InputLabelProps={{ shrink: true }}
-              />
+            <Grid item xs={12}>
+              <Button variant="contained" component="label">
+                Upload CSV
+                <input type="file" hidden accept=".csv" onChange={handleFileUpload} />
+              </Button>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <Select
                 value={selectedPlot}
                 onChange={(e) => setSelectedPlot(e.target.value as string)}
@@ -99,47 +119,39 @@ const VisualizationPage: React.FC = () => {
               </Select>
             </Grid>
             <Grid item xs={12} md={4}>
-              <TextField
-                label="X Axis"
+              <Select
                 value={xAxis}
-                onChange={(e) => setXAxis(e.target.value)}
+                onChange={(e) => setXAxis(e.target.value as string)}
                 fullWidth
-                variant="outlined"
-              />
+                displayEmpty
+              >
+                <MenuItem value="" disabled>Select X Axis</MenuItem>
+                {availableColumns.map((column) => (
+                  <MenuItem key={column} value={column}>{column}</MenuItem>
+                ))}
+              </Select>
             </Grid>
             <Grid item xs={12} md={4}>
-              <TextField
-                label="Y Axis"
+              <Select
                 value={yAxis}
-                onChange={(e) => setYAxis(e.target.value)}
+                onChange={(e) => setYAxis(e.target.value as string)}
                 fullWidth
-                variant="outlined"
-              />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <TextField
-                label="Color By (optional)"
-                value={colorBy}
-                onChange={(e) => setColorBy(e.target.value)}
-                fullWidth
-                variant="outlined"
-              />
+                displayEmpty
+                disabled={selectedPlot === 'histogram'}
+              >
+                <MenuItem value="" disabled>Select Y Axis</MenuItem>
+                {availableColumns.map((column) => (
+                  <MenuItem key={column} value={column}>{column}</MenuItem>
+                ))}
+              </Select>
             </Grid>
           </Grid>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={() => renderPlot()}
-            style={{ marginTop: '20px' }}
-          >
-            Generate Plot
-          </Button>
-          <div id="plot-container" style={{ marginTop: '20px' }}>
-            {renderPlot()}
-          </div>
+          <Box sx={{ mt: 2 }}>
+            <div ref={plotRef}></div>
+          </Box>
         </CardContent>
       </Card>
-    </div>
+    </Box>
   );
 };
 
