@@ -36,12 +36,14 @@ DataBuddy/
 ### Frontend (Next.js with shadcn/ui)
 
 The frontend is responsible for:
+
 - Providing a user-friendly interface for data upload and viewing.
 - Communicating with the backend for data processing and retrieval.
 
 ### Backend (Go)
 
 The backend handles:
+
 - Data extraction from uploaded files.
 - Data processing and indexing.
 - Storing data in SQLite database.
@@ -58,4 +60,3 @@ The backend handles:
 - Frontend development: Work in the `frontend` directory using Next.js conventions.
 - Backend development: Implement Go logic in the `backend` directory.
 - Use Wails bindings to connect frontend and backend.
-
