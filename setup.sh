@@ -19,15 +19,26 @@ then
     exit 1
 fi
 
+# Check if Wails is installed
+if ! command -v wails &> /dev/null
+then
+    print_color $YELLOW "Wails could not be found. Please install Wails first."
+    exit 1
+fi
+
 # Install dependencies
 print_color $GREEN "Installing dependencies..."
-npm install @observablehq/plot @mui/material @emotion/react @emotion/styled @mui/icons-material
+npm install
 
 # Update package.json scripts
 print_color $GREEN "Updating package.json scripts..."
-npm pkg set scripts.dev="electron-vite dev"
-npm pkg set scripts.build="electron-vite build"
-npm pkg set scripts.preview="electron-vite preview"
+npm pkg set scripts.dev="wails dev"
+npm pkg set scripts.build="wails build"
+npm pkg set scripts.preview="wails preview"
+
+# Build the application
+print_color $GREEN "Building the application..."
+npm run build
 
 # Start the development server
 print_color $GREEN "Starting the development server..."

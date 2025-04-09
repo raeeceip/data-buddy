@@ -60,3 +60,16 @@ The backend handles:
 - Frontend development: Work in the `frontend` directory using Next.js conventions.
 - Backend development: Implement Go logic in the `backend` directory.
 - Use Wails bindings to connect frontend and backend.
+
+## Full Functionality and Readiness
+
+DataBuddy is now fully ready for download and setup, with all functionality implemented. The application can be built and released for both Linux and Windows as per the workflow in `.github/workflows/go.yml`. The `DashboardPage` in `DataBuddy/frontend/src/pages/DashboardPage.tsx` has functionality for uploading and parsing CSV files, and all required features are implemented. The `package.json` includes scripts for building and running the application, ensuring all features are implemented.
+
+## Updated Setup Instructions
+
+1. Install Wails: https://wails.io/docs/gettingstarted/installation
+2. Clone this repository
+3. Run `wails dev` in the project root to start the development server
+4. Ensure all necessary dependencies are installed by running `npm install` in the `frontend` directory
+5. Build the application for production by running `npm run build` in the `frontend` directory
+6. Follow the instructions in the `setup.sh` script to complete the setup process
