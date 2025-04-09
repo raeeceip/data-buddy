@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Card, CardContent, Switch, FormControlLabel, Button } from '@mui/material';
 
 const SettingsPage: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
 
+  useEffect(() => {
+    const savedSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+    if (savedSettings) {
+      setDarkMode(savedSettings.darkMode || false);
+      setAutoSave(savedSettings.autoSave || true);
+    }
+  }, []);
+
   const handleSave = () => {
-    // Here you would typically save these settings to some kind of storage
-    console.log('Settings saved:', { darkMode, autoSave });
-    // You could use electron-store or similar to persist these settings
+    const settings = { darkMode, autoSave };
+    localStorage.setItem('settings', JSON.stringify(settings));
+    console.log('Settings saved:', settings);
   };
 
   return (
